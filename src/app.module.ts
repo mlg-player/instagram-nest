@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from './user/user.entity';
-import { PostEntity } from './post/post.entity';
-import { LikeEntity } from './like/like.entity';
-import { CommentEntity } from './comment/comment.entity';
-import { LocationEntity } from './location/location.entity';
-import { LikeModule } from './like/like.module';
-import { PostModule } from './post/post.module';
-import { UsersModule } from './user/users.module';
-import { CommentModule } from './comment/comment.module';
-import { LocationModule } from './location/location.module';
+
+import { CommentEntity } from './modules/comment/comment.entity';
+import { CommentModule } from './modules/comment/comment.module';
+import { LikeEntity } from './modules/like/like.entity';
+import { LikeModule } from './modules/like/like.module';
+import { LocationEntity } from './modules/location/location.entity';
+import { LocationModule } from './modules/location/location.module';
+import { PostEntity } from './modules/post/post.entity';
+import { PostModule } from './modules/post/post.module';
+import { UserEntity } from './modules/user/user.entity';
+import { UsersModule } from './modules/user/users.module';
 
 @Module({
       imports: [
