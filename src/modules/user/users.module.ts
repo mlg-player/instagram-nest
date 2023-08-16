@@ -9,14 +9,16 @@ import { UsersService } from './users.service';
 
 import type { MiddlewareConsumer, NestModule } from '@nestjs/common';
 
+import { RelationshipModule } from '$module/relationship/relationship.module';
+
 @Module({
-      imports: [TypeOrmModule.forFeature([UserEntity])],
-      controllers: [UsersController, AuthorizationController],
-      providers: [UsersService],
-      exports: [UsersService],
+    imports: [TypeOrmModule.forFeature([UserEntity]), RelationshipModule],
+    controllers: [UsersController, AuthorizationController],
+    providers: [UsersService],
+    exports: [UsersService],
 })
 export class UsersModule implements NestModule {
-      configure(consumer: MiddlewareConsumer) {
-            consumer.apply(LoggerMiddleware).forRoutes(UsersController);
-      }
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(LoggerMiddleware).forRoutes(UsersController);
+    }
 }

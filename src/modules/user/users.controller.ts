@@ -1,27 +1,42 @@
-import { Controller, Get, Body, Param, Put, Delete } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Body,
+    Param,
+    Put,
+    Delete,
+    ForbiddenException,
+} from '@nestjs/common';
 
 import { UserType } from './user.type';
 import { UsersService } from './users.service';
 
-@Controller('users')
+import { Profile } from '$decorator/profile';
+
+@Controller('user')
 export class UsersController {
-      constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService) {}
 
-      @Get(':username')
-      async findOne(@Param('username') username: string): Promise<UserType> {
-            return this.usersService.findOne(username);
-      }
+    @Get(':username')
+    async findOne(
+        @Profile() profile: string,
+        @Param('username') username: string,
+    ): Promise<UserType> {
+        return this.usersService.get_user_profile(username, profile);
+    }
 
-      @Put(':username')
-      async update(
-            @Param('username') username: string,
-            @Body() user: UserType,
-      ): Promise<UserType> {
-            return this.usersService.update(username, user);
-      }
+    @Put(':username')
+    async update(
+        @Param('username') username: string,
+        @Body() user: UserType,
+        @Profile() profile: string,
+    ): Promise<UserType> {
+        if (profile !== username) throw new ForbiddenException();
+        return this.usersService.update(username, user);
+    }
 
-      @Delete(':username')
-      async remove(@Param('username') username: string): Promise<void> {
-            return this.usersService.remove(username);
-      }
+    @Delete(':username')
+    async remove(@Param('username') username: string): Promise<void> {
+        return this.usersService.remove(username);
+    }
 }

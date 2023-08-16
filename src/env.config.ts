@@ -4,6 +4,6 @@ dotenv.config();
 
 const { SALT_KEY } = process.env;
 const env_config = {
-      SALT_KEY,
+    SALT_KEY,
 };
 export default env_config;

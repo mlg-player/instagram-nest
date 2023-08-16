@@ -47,7 +47,7 @@ module.exports = {
                   'error',
                   {
                         endOfLine: 'auto',
-                        tabWidth: 6,
+                        tabWidth: 4,
                   },
             ],
             'import/namespace': 'off',

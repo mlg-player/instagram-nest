@@ -7,24 +7,24 @@ import { UserEntity } from '$module/user/user.entity';
 
 @Entity()
 export class LikeEntity implements LikeType {
-      @PrimaryGeneratedColumn('uuid')
-      id: LikeType['id'];
+    @PrimaryGeneratedColumn('uuid')
+    id: LikeType['id'];
 
-      @OneToOne(() => PostEntity, ({ permalink }) => permalink)
-      @JoinColumn({
-            name: 'post_id',
-      })
-      post_id: LikeType['post_id'];
+    @OneToOne(() => PostEntity, ({ permalink }) => permalink)
+    @JoinColumn({
+        name: 'post_id',
+    })
+    post_id: LikeType['post_id'];
 
-      @OneToOne(() => UserEntity, ({ profile_picture }) => profile_picture)
-      @JoinColumn({
-            name: 'profile_picture',
-      })
-      profile_picture: LikeType['profile_picture'];
+    @OneToOne(() => UserEntity, ({ profile_picture }) => profile_picture)
+    @JoinColumn({
+        name: 'profile_picture',
+    })
+    profile_picture: LikeType['profile_picture'];
 
-      @OneToOne(() => UserEntity, ({ username }) => username)
-      @JoinColumn({
-            name: 'username',
-      })
-      username: LikeType['username'];
+    @OneToOne(() => UserEntity, ({ username }) => username)
+    @JoinColumn({
+        name: 'username',
+    })
+    username: LikeType['username'];
 }
