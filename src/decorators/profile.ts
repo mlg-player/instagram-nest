@@ -7,10 +7,11 @@ import type { Request } from 'express';
 export const Profile = createParamDecorator(
     (_: undefined, ctx: ExecutionContext): string | undefined => {
         const request = ctx.switchToHttp().getRequest() as Request;
-        const authorization = request.headers['authorization'];
+        const get_authorization = request.headers['authorization'];
         const secret = process.env.SALT_KEY;
 
-        if (!secret || !authorization) return undefined;
+        if (!secret || !get_authorization) return undefined;
+        const authorization = get_authorization.replace('Bearer ', '').trim();
 
         let decoded:
             | {

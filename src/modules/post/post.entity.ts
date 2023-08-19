@@ -1,9 +1,9 @@
 import {
     Entity,
     PrimaryGeneratedColumn,
-    OneToOne,
     Column,
     JoinColumn,
+    ManyToOne,
 } from 'typeorm';
 
 import { LocationEntity } from '../location/location.entity';
@@ -45,7 +45,7 @@ export class PostEntity implements PostType {
     /** Временная метка, указывающая на время публикации поста. */
     @Column({
         nullable: false,
-        type: 'integer',
+        type: 'bigint',
     })
     timestamp: PostType['timestamp'];
 
@@ -58,22 +58,14 @@ export class PostEntity implements PostType {
     is_video: PostType['is_video'];
 
     /** (объект): Информация о местоположении, где был опубликован пост, включая координаты и другие данные. */
-    @OneToOne(() => LocationEntity, (location) => location)
+    @ManyToOne(() => LocationEntity, (location) => location)
     @JoinColumn({
         name: 'location',
     })
     location: PostType['location'];
 
     /** (объект): Информация о пользователе, который опубликовал пост, включая имя пользователя, идентификатор и другие данные. */
-    @OneToOne(() => UserEntity, (user) => user.username)
+    @ManyToOne(() => UserEntity, (user) => user.username)
     @JoinColumn({ name: 'username' })
     username: PostType['username'];
-
-    @OneToOne(() => UserEntity, (user) => user.full_name)
-    @JoinColumn({ name: 'full_name' })
-    full_name: PostType['full_name'];
-
-    @OneToOne(() => UserEntity, (user) => user.profile_picture)
-    @JoinColumn({ name: 'profile_picture' })
-    profile_picture: PostType['profile_picture'];
 }

@@ -1,11 +1,11 @@
 import type { UserType } from '$module/user/user.type';
 
 export type RelationshipType = {
-    id: string;
+    connection_id: string;
 
     user: UserType['username'];
 
-    target: UserType['username'];
+    requested_user: UserType['username'];
 
     incoming_status: RELATIONSHIP_STATUSES;
 
