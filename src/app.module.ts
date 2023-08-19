@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CommentEntity } from './modules/comment/comment.entity';
 import { CommentModule } from './modules/comment/comment.module';
+import { FilesModule } from './modules/files/files.module';
 import { LikeEntity } from './modules/like/like.entity';
 import { LikeModule } from './modules/like/like.module';
 import { LocationEntity } from './modules/location/location.entity';
@@ -13,6 +14,7 @@ import { RelationshipModule } from './modules/relationship/relationship.module';
 import { UserEntity } from './modules/user/user.entity';
 import { UsersModule } from './modules/user/users.module';
 
+import { FilesEntity } from '$module/files/files.entity';
 import { RelationshipEntity } from '$module/relationship/relationship.entity';
 
 @Module({
@@ -31,6 +33,7 @@ import { RelationshipEntity } from '$module/relationship/relationship.entity';
                 PostEntity,
                 UserEntity,
                 RelationshipEntity,
+                FilesEntity,
             ],
             synchronize: true,
         }),
@@ -40,6 +43,7 @@ import { RelationshipEntity } from '$module/relationship/relationship.entity';
         CommentModule,
         LocationModule,
         RelationshipModule,
+        FilesModule,
     ],
     controllers: [],
     providers: [],

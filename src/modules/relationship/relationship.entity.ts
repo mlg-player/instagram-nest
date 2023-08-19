@@ -1,19 +1,21 @@
 import {
     Entity,
-    PrimaryGeneratedColumn,
     OneToOne,
     Column,
     JoinColumn,
+    PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { UserEntity } from '../user/user.entity';
 
 import type { RelationshipType } from './relationship.type';
 
-@Entity()
+@Entity({
+    name: 'relationship',
+})
 export class RelationshipEntity implements RelationshipType {
     @PrimaryGeneratedColumn('uuid')
-    id: RelationshipType['id'];
+    connection_id: RelationshipType['connection_id'];
 
     @Column({
         nullable: false,
@@ -28,10 +30,10 @@ export class RelationshipEntity implements RelationshipType {
     outgoing_status: RelationshipType['outgoing_status'];
 
     @OneToOne(() => UserEntity, (user) => user.username)
-    @JoinColumn({ name: 'username' })
-    user: RelationshipType['user'];
+    @JoinColumn({ name: 'user' })
+    user: string;
 
     @OneToOne(() => UserEntity, (user) => user.username)
-    @JoinColumn({ name: 'username' })
-    target: RelationshipType['target'];
+    @JoinColumn({ name: 'requested_user' })
+    requested_user: string;
 }

@@ -34,7 +34,7 @@ export type PostType = {
     media_type: MEDIA_TYPES;
 
     /** URL медиа-контента (фотографии или видео) в посте. */
-    media_url: string;
+    media_url: string | string[];
 
     /** URL миниатюры медиа-контента (для видео или карусели). */
     thumbnail_url: string;
@@ -50,15 +50,22 @@ export type PostType = {
 
     /** (объект): Информация о пользователе, который опубликовал пост, включая имя пользователя, идентификатор и другие данные. */
     username: UserType['username'];
+};
 
+export type PostDto = {
+    caption: PostType['caption'];
+    location: PostType['location'];
+    media: string;
+};
+
+export interface PublicPostType extends PostType {
     full_name: UserType['full_name'];
 
     profile_picture: UserType['profile_picture'];
-};
+}
 
 export const PostSchema = Joi.object<PostType>({
     caption: Joi.string(),
-    full_name: Joi.string(),
     is_video: Joi.boolean().required(),
     location: Joi.string().uuid(),
     media_type: Joi.string()
@@ -72,6 +79,10 @@ export const PostSchema = Joi.object<PostType>({
         )
         .required(),
     media_url: Joi.string().required(),
-    permalink: Joi.string().required(),
-    profile_picture: Joi.string(),
+});
+
+export const PostDtoSchema = Joi.object<PostDto>({
+    caption: Joi.string(),
+    location: Joi.string().uuid(),
+    media: Joi.string().uuid().required(),
 });

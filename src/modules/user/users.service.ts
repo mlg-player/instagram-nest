@@ -1,10 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserEntity } from './user.entity';
 
-import type { RelationshipEntity } from '$module/relationship/relationship.entity';
 import type { RegisterDto, UserType } from './user.type';
 
 import { RelationshipService } from '$module/relationship/relationship.service';
@@ -15,41 +14,41 @@ export class UsersService {
     constructor(
         @InjectRepository(UserEntity)
         private usersRepository: Repository<UserEntity>,
+        @Inject(RelationshipService)
         private readonly rsService: RelationshipService,
     ) {}
 
-    async get_access_to_user(
-        author: string,
-        username: string,
-    ): Promise<RelationshipEntity> {
+    async get_access_to_user(author: string, username: string) {
         const found_user = await this.usersRepository.findOne({
             where: { username: author },
         });
         const throw_error = new HttpException('', HttpStatus.BAD_REQUEST);
         if (!found_user) throw throw_error;
 
-        if (found_user.is_private) {
-            const relationship = await this.rsService.get_relationship(
-                author,
-                username,
-            );
+        if (found_user.is_private === true) {
+            throw throw_error;
+            // // TODO Find why is error coming from
+            // const relationship = await this.rsService.get_relationship(
+            //     author,
+            //     username,
+            // );
 
-            if (!relationship) throw throw_error;
-            const { incoming_status, outgoing_status } = relationship;
-            const is_target_author = relationship.target === author;
-            const is_user_author = relationship.user === author;
+            // if (!relationship) throw throw_error;
+            // const { incoming_status, outgoing_status } = relationship;
+            // const is_target_author = relationship.requested_user === author;
+            // const is_user_author = relationship.user === author;
 
-            const condition_incoming =
-                incoming_status === RELATIONSHIP_STATUSES.NONE;
-            const outgoing_condition =
-                outgoing_status === RELATIONSHIP_STATUSES.NONE;
+            // const condition_incoming =
+            //     incoming_status === RELATIONSHIP_STATUSES.NONE;
+            // const outgoing_condition =
+            //     outgoing_status === RELATIONSHIP_STATUSES.NONE;
 
-            if (is_target_author && condition_incoming) {
-                throw throw_error;
-            } else if (is_user_author && outgoing_condition) {
-                throw throw_error;
-            }
-            return relationship;
+            // if (is_target_author && condition_incoming) {
+            //     throw throw_error;
+            // } else if (is_user_author && outgoing_condition) {
+            //     throw throw_error;
+            // }
+            // return relationship;
         }
     }
     async create(user_dto: RegisterDto): Promise<UserType> {
@@ -110,15 +109,11 @@ export class UsersService {
     async get_user_profile(
         username: string,
         myself: string,
-    ): Promise<
-        UserType & {
-            outgoing_status: RELATIONSHIP_STATUSES;
-            incoming_status: RELATIONSHIP_STATUSES;
-        }
-    > {
+    ): Promise<UserType> {
         const found_user = await this.usersRepository.findOne({
             where: { username },
         });
+
         if (!found_user) {
             throw new HttpException(
                 "User doesn't exists",
@@ -127,15 +122,7 @@ export class UsersService {
         }
         const { password, email, phone, ...user } = found_user;
 
-        const relationship = await this.rsService.get_relationship(
-            username,
-            myself,
-        );
-        return {
-            ...user,
-            outgoing_status: relationship.outgoing_status,
-            incoming_status: relationship.incoming_status,
-        };
+        return user;
     }
 
     async update(username: string, user: UserType): Promise<UserType> {
