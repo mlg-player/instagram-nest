@@ -55,7 +55,10 @@ export class PostController {
     }
 
     @Delete(':permalink')
-    async remove(@Param('permalink') permalink: string): Promise<void> {
-        return this.postService.remove(permalink);
+    async remove(
+        @Param('permalink') permalink: string,
+        @Profile() profile: string,
+    ): Promise<void> {
+        return this.postService.remove(permalink, profile);
     }
 }
