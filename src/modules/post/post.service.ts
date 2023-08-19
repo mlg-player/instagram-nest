@@ -80,7 +80,7 @@ export class PostService {
         return this.findOne(permalink);
     }
 
-    async remove(permalink: string): Promise<void> {
-        await this.postsRepository.delete(permalink);
+    async remove(permalink: string, profile: string): Promise<void> {
+        await this.postsRepository.delete({ permalink, username: profile });
     }
 }
