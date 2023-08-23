@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerMiddleware } from 'src/middleware/logger.middleware';
 
@@ -12,7 +12,10 @@ import type { MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { RelationshipModule } from '$module/relationship/relationship.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([UserEntity]), RelationshipModule],
+    imports: [
+        TypeOrmModule.forFeature([UserEntity]),
+        forwardRef(() => RelationshipModule),
+    ],
     controllers: [UsersController, AuthorizationController],
     providers: [UsersService],
     exports: [UsersService],

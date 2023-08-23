@@ -3,23 +3,38 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { RelationshipEntity } from './relationship.entity';
-import { RELATIONSHIP_STATUSES } from './relationship.type';
+
+import { UsersService } from '$module/user/users.service';
 
 @Injectable()
 export class RelationshipService {
     constructor(
         @InjectRepository(RelationshipEntity)
         private relationshipRepository: Repository<RelationshipEntity>,
+        private userService: UsersService,
     ) {}
 
-    async follow(user: string, requested_by: string) {
-        if (!requested_by) throw new UnauthorizedException();
+    async follow(target: string, requested_by: string) {
+        const target_user = await this.userService.findOne(target);
+        const requested_user = await this.userService.findOne(requested_by);
+        if (!target_user || !requested_user) throw new UnauthorizedException();
 
-        this.relationshipRepository.create({
-            incoming_status: RELATIONSHIP_STATUSES.NONE,
-            outgoing_status: RELATIONSHIP_STATUSES.REQUESTED,
-            requested_user: user,
-            user: requested_by,
+        return this.relationshipRepository.save({
+            following: target_user,
+            username: requested_user,
+        });
+    }
+
+    async get_followed_users(profile: string) {
+        return this.relationshipRepository.find({
+            where: {
+                user: {
+                    username: profile,
+                },
+            },
+            relations: {
+                following: true,
+            },
         });
     }
 
@@ -27,43 +42,33 @@ export class RelationshipService {
     async get_relationship(target: string, requested_by: string) {
         if (!requested_by) throw new UnauthorizedException();
         const relationship = {
-            connection_id: 'none',
-            incoming_status: RELATIONSHIP_STATUSES.NONE,
-            outgoing_status: RELATIONSHIP_STATUSES.NONE,
-            requested_user: requested_by,
-            user: target,
+            user: requested_by,
+            target: target,
         };
-        const where = [
-            {
-                user: target,
-                requested_user: requested_by,
-            },
-            {
-                user: requested_by,
-                requested_user: target,
-            },
-        ];
-        const founded = await this.relationshipRepository
-            .findOne({
-                where,
-                loadEagerRelations: true,
-            })
 
-            .catch((reason) => {
-                console.log(reason);
-            });
-        if (!founded) return relationship;
-        if (founded.requested_user === target) {
-            relationship.incoming_status = founded.incoming_status;
-            relationship.outgoing_status = founded.outgoing_status;
-            relationship.requested_user = founded.requested_user;
-            relationship.user = founded.user;
-        } else {
-            relationship.outgoing_status = founded.incoming_status;
-            relationship.incoming_status = founded.outgoing_status;
-            relationship.user = founded.requested_user;
-            relationship.requested_user = founded.user;
-        }
+        // const founded = await this.relationshipRepository
+        //     .findOne({
+        //         where: [
+        //             {
+        //                 following: target,
+        //                 followers: requested_by,
+        //             },
+        //             {
+        //                 following: requested_by,
+        //                 followers: target,
+        //             },
+        //         ],
+        //         loadEagerRelations: true,
+        //     })
+
+        //     .catch((reason) => {
+        //         console.log(reason);
+        //     });
+        // if (!founded) return relationship;
+        // if (founded.following !== target) {
+        //     relationship.user = founded.following;
+        //     relationship.target = founded.followers;
+        // }
         return relationship;
     }
 }

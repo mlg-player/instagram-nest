@@ -7,6 +7,7 @@ import { PostEntity } from './post.entity';
 import type { PostDto, PostType } from './post.type';
 
 import { FilesService } from '$module/files/files.service';
+import { RelationshipService } from '$module/relationship/relationship.service';
 import { UsersService } from '$module/user/users.service';
 
 @Injectable()
@@ -15,14 +16,36 @@ export class PostService {
         @InjectRepository(PostEntity)
         private postsRepository: Repository<PostEntity>,
         private readonly filesService: FilesService,
+        private readonly rsService: RelationshipService,
         private readonly usersService: UsersService,
     ) {}
+
+    private default_select = {
+        caption: true,
+        is_video: true,
+        location: true,
+        media_type: true,
+        media_url: true,
+        permalink: true,
+        thumbnail_url: true,
+        timestamp: true,
+        user: {
+            profile_picture: true,
+            username: true,
+            is_private: true,
+            is_verified: true,
+        },
+    };
 
     async findAll(): Promise<PostType[]> {
         return this.postsRepository.find();
     }
     /** @param range - `0-20` takes posts from 0-20 by default */
-    async findUsersAll(username: string, range = '0-20'): Promise<PostType[]> {
+    async findUsersAll(
+        username: string,
+        range = '0-20',
+        with_user = true,
+    ): Promise<PostType[]> {
         const [offset, limit] = range.split('-').map((v) => Number(v));
 
         if (
@@ -34,9 +57,17 @@ export class PostService {
             throw new BadRequestException();
         }
         return this.postsRepository.find({
-            where: { username },
+            where: {
+                user: {
+                    username,
+                },
+            },
             take: limit,
             skip: offset,
+            relations: {
+                user: with_user,
+            },
+            select: this.default_select,
         });
     }
 
@@ -44,25 +75,60 @@ export class PostService {
         author: string,
         username: string,
         range?: string,
+        with_user = false,
     ): Promise<PostType[]> {
-        if (author === username) return this.findUsersAll(author);
+        if (author === username) {
+            return this.findUsersAll(author, range, with_user);
+        }
 
         await this.usersService.get_access_to_user(author, username);
 
-        return this.findUsersAll(author, range);
+        return this.findUsersAll(author, range, with_user);
     }
 
+    /** Get posts lists from followed users and yourself */
+    async get_feed_posts(
+        username: string,
+        with_user = true,
+    ): Promise<PostType[]> {
+        const get_all_users = await this.rsService.get_followed_users(username);
+
+        if (!get_all_users || !get_all_users.length) return [];
+        const list = get_all_users.map((connection) => ({
+            username: connection.following.username,
+        }));
+
+        return this.postsRepository.find({
+            where: {
+                user: [
+                    ...list,
+                    {
+                        username: username,
+                    },
+                ],
+            },
+            relations: {
+                user: with_user,
+            },
+            select: this.default_select,
+        });
+    }
     async findOne(permalink: string): Promise<PostType> {
         return this.postsRepository.findOne({
             where: { permalink },
+            relations: {
+                user: true,
+            },
+            select: this.default_select,
         });
     }
 
     async create(post: PostDto, username: string): Promise<PostType> {
         const media = await this.filesService.get_media(post.media);
+        const user = await this.usersService.findOne(username);
+        if (!media || !user) throw new BadRequestException();
 
-        if (!media) throw new BadRequestException();
-        const to_save = {
+        return this.postsRepository.save({
             caption: post.caption,
             media_type: media.media_type,
             media_url: media.media_url,
@@ -70,9 +136,8 @@ export class PostService {
             timestamp: Number(new Date()),
             is_video: false,
             location: post.location,
-            username: username,
-        };
-        return this.postsRepository.save(to_save);
+            user: user,
+        });
     }
 
     async update(permalink: string, post: PostType): Promise<PostType> {
@@ -81,6 +146,11 @@ export class PostService {
     }
 
     async remove(permalink: string, profile: string): Promise<void> {
-        await this.postsRepository.delete({ permalink, username: profile });
+        await this.postsRepository.delete({
+            permalink,
+            user: {
+                username: profile,
+            },
+        });
     }
 }

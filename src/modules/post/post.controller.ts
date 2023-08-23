@@ -35,6 +35,10 @@ export class PostController {
         return this.postService.get_users_posts(username, profile, range);
     }
 
+    @Get('feed')
+    async get_all_posts(@Profile() profile: string): Promise<PostType[]> {
+        return this.postService.get_feed_posts(profile);
+    }
     @Get(':permalink')
     async findOne(@Param('permalink') permalink: string): Promise<PostType> {
         return this.postService.findOne(permalink);

@@ -1,4 +1,4 @@
-import { createParamDecorator } from '@nestjs/common';
+import { UnauthorizedException, createParamDecorator } from '@nestjs/common';
 import { verify } from 'jsonwebtoken';
 
 import type { ExecutionContext } from '@nestjs/common';
@@ -24,8 +24,9 @@ export const Profile = createParamDecorator(
                 username: string;
             };
         } catch (e) {
-            return undefined;
+            throw new UnauthorizedException();
         }
+        if (!decoded.username) throw new UnauthorizedException();
         return decoded.username;
     },
 );

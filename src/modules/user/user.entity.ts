@@ -1,56 +1,62 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 
-import type { UserType } from './user.type';
+import { RelationshipEntity } from '$module/relationship/relationship.entity';
 
 @Entity()
-export class UserEntity implements UserType {
+export class UserEntity {
     @PrimaryColumn({
         unique: true,
         type: 'varchar',
     })
-    username: UserType['username'];
+    username: string;
 
     @Column({
         type: 'text',
     })
-    full_name: UserType['full_name'];
+    full_name: string;
 
     @Column({
         type: 'text',
     })
-    bio: UserType['bio'];
+    bio: string;
 
     @Column({
         type: 'text',
     })
-    website: UserType['website'];
+    website: string;
 
     @Column({
         type: 'text',
     })
-    profile_picture: UserType['profile_picture'];
+    profile_picture: string;
 
     @Column({
         default: false,
         type: 'bool',
     })
-    is_private: UserType['is_private'];
+    is_private: boolean;
 
     @Column({
         default: false,
         type: 'bool',
     })
-    is_verified: UserType['is_verified'];
+    is_verified: boolean;
 
     @Column({
         unique: true,
         type: 'text',
     })
-    email: UserType['email'];
+    email: string;
 
     @Column('text')
-    password: UserType['password'];
+    password: string;
 
     @Column('text')
-    phone: UserType['phone'];
+    phone: string;
+
+    @OneToMany(
+        () => RelationshipEntity,
+        (relationship) => relationship.user,
+    )
+    following: RelationshipEntity[];
 }
