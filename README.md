@@ -30,3 +30,4 @@ $ yarn run test:e2e
 # test coverage
 $ yarn run test:cov
 ```
+# [Insomnia Docs](https://gist.github.com/ksixen/0b936edc9a03a9d68d2a4493dc454f57)
