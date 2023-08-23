@@ -8,7 +8,10 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-        cors: false,
+        cors: {
+            origin: 'http://localhost:5173',
+            credentials: true,
+        },
     });
 
     app.useStaticAssets(join(__dirname, '..', 'uploads'), {

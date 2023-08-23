@@ -1,39 +1,17 @@
-import {
-    Entity,
-    OneToOne,
-    Column,
-    JoinColumn,
-    PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Entity, JoinColumn, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 import { UserEntity } from '../user/user.entity';
 
-import type { RelationshipType } from './relationship.type';
-
-@Entity({
-    name: 'relationship',
-})
-export class RelationshipEntity implements RelationshipType {
+@Entity()
+export class RelationshipEntity {
     @PrimaryGeneratedColumn('uuid')
-    connection_id: RelationshipType['connection_id'];
+    connection_id: string;
 
-    @Column({
-        nullable: false,
-        type: 'text',
-    })
-    incoming_status: RelationshipType['incoming_status'];
+    @ManyToOne(() => UserEntity, (user) => user.following)
+    @JoinColumn()
+    following: UserEntity;
 
-    @Column({
-        nullable: false,
-        type: 'text',
-    })
-    outgoing_status: RelationshipType['outgoing_status'];
-
-    @OneToOne(() => UserEntity, (user) => user.username)
-    @JoinColumn({ name: 'user' })
-    user: string;
-
-    @OneToOne(() => UserEntity, (user) => user.username)
-    @JoinColumn({ name: 'requested_user' })
-    requested_user: string;
+    @ManyToOne(() => UserEntity, (user) => user)
+    @JoinColumn()
+    user: UserEntity;
 }

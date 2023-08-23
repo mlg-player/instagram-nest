@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -6,16 +6,11 @@ import { UserEntity } from './user.entity';
 
 import type { RegisterDto, UserType } from './user.type';
 
-import { RelationshipService } from '$module/relationship/relationship.service';
-import { RELATIONSHIP_STATUSES } from '$module/relationship/relationship.type';
-
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(UserEntity)
         private usersRepository: Repository<UserEntity>,
-        @Inject(RelationshipService)
-        private readonly rsService: RelationshipService,
     ) {}
 
     async get_access_to_user(author: string, username: string) {

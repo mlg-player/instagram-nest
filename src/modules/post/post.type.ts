@@ -49,7 +49,7 @@ export type PostType = {
     location: LocationType['id'];
 
     /** (объект): Информация о пользователе, который опубликовал пост, включая имя пользователя, идентификатор и другие данные. */
-    username: UserType['username'];
+    user: UserType;
 };
 
 export type PostDto = {

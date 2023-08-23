@@ -65,7 +65,8 @@ export class PostEntity implements PostType {
     location: PostType['location'];
 
     /** (объект): Информация о пользователе, который опубликовал пост, включая имя пользователя, идентификатор и другие данные. */
-    @ManyToOne(() => UserEntity, (user) => user.username)
-    @JoinColumn({ name: 'username' })
-    username: PostType['username'];
+
+    @ManyToOne(() => UserEntity, (user) => user)
+    @JoinColumn()
+    user: UserEntity;
 }
