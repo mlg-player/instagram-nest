@@ -22,28 +22,6 @@ export class UsersService {
 
         if (found_user.is_private === true) {
             throw throw_error;
-            // // TODO Find why is error coming from
-            // const relationship = await this.rsService.get_relationship(
-            //     author,
-            //     username,
-            // );
-
-            // if (!relationship) throw throw_error;
-            // const { incoming_status, outgoing_status } = relationship;
-            // const is_target_author = relationship.requested_user === author;
-            // const is_user_author = relationship.user === author;
-
-            // const condition_incoming =
-            //     incoming_status === RELATIONSHIP_STATUSES.NONE;
-            // const outgoing_condition =
-            //     outgoing_status === RELATIONSHIP_STATUSES.NONE;
-
-            // if (is_target_author && condition_incoming) {
-            //     throw throw_error;
-            // } else if (is_user_author && outgoing_condition) {
-            //     throw throw_error;
-            // }
-            // return relationship;
         }
     }
     async create(user_dto: RegisterDto): Promise<UserType> {
@@ -101,12 +79,18 @@ export class UsersService {
         const { password, email, phone, ...user } = found_user;
         return user;
     }
-    async get_user_profile(
-        username: string,
-        myself: string,
-    ): Promise<UserType> {
+    async get_user_profile(username: string): Promise<UserType> {
         const found_user = await this.usersRepository.findOne({
             where: { username },
+            select: {
+                bio: true,
+                full_name: true,
+                is_private: true,
+                is_verified: true,
+                profile_picture: true,
+                username: true,
+                website: true,
+            },
         });
 
         if (!found_user) {
@@ -115,9 +99,8 @@ export class UsersService {
                 HttpStatus.NOT_FOUND,
             );
         }
-        const { password, email, phone, ...user } = found_user;
 
-        return user;
+        return found_user;
     }
 
     async update(username: string, user: UserType): Promise<UserType> {

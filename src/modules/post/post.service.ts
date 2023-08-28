@@ -24,10 +24,8 @@ export class PostService {
         caption: true,
         is_video: true,
         location: true,
-        media_type: true,
-        media_url: true,
+        media: true,
         permalink: true,
-        thumbnail_url: true,
         timestamp: true,
         user: {
             profile_picture: true,
@@ -109,6 +107,7 @@ export class PostService {
             },
             relations: {
                 user: with_user,
+                media: true,
             },
             select: this.default_select,
         });
@@ -124,15 +123,15 @@ export class PostService {
     }
 
     async create(post: PostDto, username: string): Promise<PostType> {
-        const media = await this.filesService.get_media(post.media);
+        const media = await Promise.all(
+            post.media.map((media) => this.filesService.get_media(media)),
+        );
         const user = await this.usersService.findOne(username);
         if (!media || !user) throw new BadRequestException();
 
         return this.postsRepository.save({
             caption: post.caption,
-            media_type: media.media_type,
-            media_url: media.media_url,
-            thumbnail_url: media.media_url,
+            media: media,
             timestamp: Number(new Date()),
             is_video: false,
             location: post.location,

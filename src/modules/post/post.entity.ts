@@ -4,6 +4,8 @@ import {
     Column,
     JoinColumn,
     ManyToOne,
+    ManyToMany,
+    JoinTable,
 } from 'typeorm';
 
 import { LocationEntity } from '../location/location.entity';
@@ -11,7 +13,13 @@ import { UserEntity } from '../user/user.entity';
 
 import type { PostType } from './post.type';
 
-@Entity()
+import { FilesEntity } from '$module/files/files.entity';
+
+@Entity({
+    orderBy: {
+        timestamp: 'DESC',
+    },
+})
 export class PostEntity implements PostType {
     /** Постоянная ссылка на пост. */
     @PrimaryGeneratedColumn('uuid')
@@ -25,22 +33,9 @@ export class PostEntity implements PostType {
     caption: PostType['caption'];
 
     /** Тип медиа-контента в посте (фотография, видео, карусель и т.д.). */
-    @Column({
-        nullable: false,
-        type: 'text',
-    })
-    media_type: PostType['media_type'];
-
-    /** URL медиа-контента (фотографии или видео) в посте. */
-    @Column({
-        nullable: false,
-        type: 'text',
-    })
-    media_url: PostType['media_url'];
-
-    /** URL миниатюры медиа-контента (для видео или карусели). */
-    @Column('text')
-    thumbnail_url: PostType['thumbnail_url'];
+    @ManyToMany(() => FilesEntity, (file) => file)
+    @JoinTable()
+    media: FilesEntity[];
 
     /** Временная метка, указывающая на время публикации поста. */
     @Column({
