@@ -18,11 +18,8 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Get(':username')
-    async findOne(
-        @Profile() profile: string,
-        @Param('username') username: string,
-    ): Promise<UserType> {
-        return this.usersService.get_user_profile(username, profile);
+    async findOne(@Param('username') username: string): Promise<UserType> {
+        return this.usersService.get_user_profile(username);
     }
 
     @Put(':username')

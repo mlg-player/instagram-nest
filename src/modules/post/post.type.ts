@@ -1,5 +1,6 @@
 import * as Joi from 'joi';
 
+import type { FilesEntity } from '$module/files/files.entity';
 import type { LocationType } from '../location/location.type';
 import type { UserType } from '../user/user.type';
 
@@ -30,14 +31,7 @@ export type PostType = {
     /** Текстовое описание к посту. */
     caption: string;
 
-    /** Тип медиа-контента в посте (фотография, видео, карусель и т.д.). */
-    media_type: MEDIA_TYPES;
-
-    /** URL медиа-контента (фотографии или видео) в посте. */
-    media_url: string | string[];
-
-    /** URL миниатюры медиа-контента (для видео или карусели). */
-    thumbnail_url: string;
+    media: FilesEntity[];
 
     /** Временная метка, указывающая на время публикации поста. */
     timestamp: number;
@@ -55,7 +49,7 @@ export type PostType = {
 export type PostDto = {
     caption: PostType['caption'];
     location: PostType['location'];
-    media: string;
+    media: string[];
 };
 
 export interface PublicPostType extends PostType {
@@ -64,25 +58,8 @@ export interface PublicPostType extends PostType {
     profile_picture: UserType['profile_picture'];
 }
 
-export const PostSchema = Joi.object<PostType>({
-    caption: Joi.string(),
-    is_video: Joi.boolean().required(),
-    location: Joi.string().uuid(),
-    media_type: Joi.string()
-        .valid(
-            MEDIA_TYPES.ALBUM,
-            MEDIA_TYPES.CAROUSEL_ALBUM,
-            MEDIA_TYPES.IGTV,
-            MEDIA_TYPES.IMAGE,
-            MEDIA_TYPES.STORY,
-            MEDIA_TYPES.VIDEO,
-        )
-        .required(),
-    media_url: Joi.string().required(),
-});
-
 export const PostDtoSchema = Joi.object<PostDto>({
     caption: Joi.string(),
     location: Joi.string().uuid(),
-    media: Joi.string().uuid().required(),
+    media: Joi.array().items(Joi.string().uuid()).required(),
 });

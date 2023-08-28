@@ -2,10 +2,10 @@ import {
     BadRequestException,
     Controller,
     Post,
-    UploadedFile,
+    UploadedFiles,
     UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 import { FilesService } from './files.service';
 
@@ -16,13 +16,17 @@ export class FilesController {
     constructor(private readonly filesService: FilesService) {}
 
     @Post('upload')
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FilesInterceptor('file'))
     async uploadFile(
-        @UploadedFile() file: Express.Multer.File,
+        @UploadedFiles() files: Express.Multer.File[],
         @Profile() profile: string,
     ) {
-        if (!file) throw new BadRequestException();
-
-        return this.filesService.handleFileUpload(file, profile);
+        if (!files || !files.length) throw new BadRequestException();
+        const list = Promise.all(
+            files.map((file) =>
+                this.filesService.handleFileUpload(file, profile),
+            ),
+        );
+        return await list;
     }
 }

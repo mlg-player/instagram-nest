@@ -54,9 +54,9 @@ export class UserEntity {
     @Column('text')
     phone: string;
 
-    @OneToMany(
-        () => RelationshipEntity,
-        (relationship) => relationship.user,
-    )
+    @OneToMany(() => RelationshipEntity, (relationship) => relationship.user)
     following: RelationshipEntity[];
+
+    @OneToMany(() => RelationshipEntity, (relationship) => relationship.user)
+    followed: RelationshipEntity[];
 }
